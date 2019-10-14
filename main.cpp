@@ -113,6 +113,6 @@ int main(int argc, char *argv[]){
   }
 
   // 正常終了通知
-  cout << "プログラムは正常に終了しました．" << endl;
+  cout << "\nプログラムは正常に終了しました．" << endl;
   return 0;
 }
