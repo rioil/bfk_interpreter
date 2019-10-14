@@ -7,7 +7,7 @@ using namespace std;
 int main(int argc, char *argv[]){
   if(argc == 1){
     cerr << "[error]実行するファイルを指定してください．" << endl;
-    return 0;
+    return 1;
   }
   else if(argc > 2){
     cout << "[warning]引数が多すぎます．2番目以降の引数は無視されます．" << endl;
@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
   FILE *bfk_source;
   if((bfk_source = fopen(argv[1], "r")) == NULL){
     cerr << "[error] " << argv[1] << " は存在しません" << endl;
-    return 0;
+    return 1;
   }
 
   // brainfuckで使用する配列，ポインタの準備
