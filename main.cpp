@@ -72,6 +72,11 @@ int main(int argc, char *argv[]){
       break;
 
       case '[':
+        // ループの深さ限界をチェック
+        if(loop_depth==BFK_MAX_LOOP_DEPTH){
+          cerr << "[error] " << program_counter + 1 << " 文字目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
+          return 1;
+        }
         // 現在の場所を記録・ループの深さを更新
         loop_start_position[loop_depth] = program_counter;
         loop_depth++;
@@ -80,7 +85,7 @@ int main(int argc, char *argv[]){
         if(*bfk_pointer == 0){
           while((current_char = fgetc(bfk_source)) != ']'){
             if(current_char == EOF){
-              cerr << "[error] " << program_counter + 1 << " 文字目の[から，次の]に進むのに失敗しました．" ;
+              cerr << "[error] " << program_counter + 1 << " 文字目の[から，次の]に進むのに失敗しました．プログラムの実行を停止します．" ;
               return 1;
             }
             program_counter++;
@@ -95,12 +100,12 @@ int main(int argc, char *argv[]){
       case ']':
         // 前の[まで戻り，ループの深さを更新
         if(loop_depth == 0){
-          cerr << "[error] " << program_counter + 1 << " 文字目の]より前に[は存在しません" ;
+          cerr << "[error] " << program_counter + 1 << " 文字目の]より前に[は存在しません．プログラムの実行を停止します．" ;
           return 1;
         }
         program_counter = loop_start_position[loop_depth-1];
         if(fseek(bfk_source, program_counter, SEEK_SET)){
-          cerr << "[error] " << program_counter + 1 << " 文字目の]から，1つ前の[に戻るのに失敗しました．" ;
+          cerr << "[error] " << program_counter + 1 << " 文字目の]から，1つ前の[に戻るのに失敗しました．プログラムの実行を停止します．" ;
           return 1;
         }
         loop_depth--;
