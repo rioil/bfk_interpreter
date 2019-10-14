@@ -107,7 +107,8 @@ int main(int argc, char *argv[]){
       continue;
 
       default:
-      continue;
+        // ‘¼‚Ì•¶š‚ÍƒRƒƒ“ƒg‚Æ‚µ‚Ä“Ç‚İ”ò‚Î‚·
+      break;
     }
     program_counter++;
   }
