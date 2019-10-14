@@ -113,7 +113,8 @@ int main(int argc, char *argv[]){
     program_counter++;
   }
 
-  // 正常終了通知
+  // 終了処理・正常終了通知
+  fclose(bfk_source);
   cout << "\nプログラムは正常に終了しました．" << endl;
   return 0;
 }
