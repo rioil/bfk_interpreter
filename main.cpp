@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
           bfk_pointer++;
         }
         else{
-          cerr << "[error]配列の最大範囲を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << program_counter + 1 << " 文字目の>で配列の最大範囲を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
       break;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
           bfk_pointer--;
         }
         else{
-          cerr << "[error]配列の最小範囲を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << program_counter + 1 << " 文字目の<で配列の最小範囲を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
       break;
