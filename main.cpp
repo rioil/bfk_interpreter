@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
 
       case '[':
         // ループの深さ限界をチェック
-        if(loop_depth==BFK_MAX_LOOP_DEPTH){
+        if(loop_depth == BFK_MAX_LOOP_DEPTH){
           cerr << "[error] " << program_counter + 1 << " 文字目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
