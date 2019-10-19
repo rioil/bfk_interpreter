@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
           bfk_pointer++;
         }
         else{
-          cerr << "[error] " << previous_pos + 1 << " 文字目の>で配列の最大範囲を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << program_step + 1 << " ステップ目の>で配列の最大範囲を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
       break;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
           bfk_pointer--;
         }
         else{
-          cerr << "[error] " << previous_pos + 1 << " 文字目の<で配列の最小範囲を超えました．プログラムの実行を停止します．" << program_step ;
+          cerr << "[error] " << program_step + 1 << " ステップ目の<で配列の最小範囲を超えました．プログラムの実行を停止します．" << program_step ;
           return 1;
         }
       break;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]){
       case '[':
         // ループの深さ限界をチェック
         if(loop_depth == BFK_MAX_LOOP_DEPTH){
-          cerr << "[error] " << previous_pos + 1 << " 文字目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << program_step + 1 << " ステップ目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]){
             current_char = fgetc(bfk_source);
             switch(current_char){
               case EOF:
-                cerr << "[error] " << previous_pos + 1 << " 文字目の[に対応する]が存在しません．プログラムの実行を停止します．" ;
+                cerr << "[error] " << program_step + 1 << " ステップ目の[に対応する]が存在しません．プログラムの実行を停止します．" ;
               return 1;
 
               case ']':
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
       case ']':
         // 前の[まで戻り，ループの深さを更新
         if(loop_depth == 0){
-          cerr << "[error] " << previous_pos + 1 << " 文字目の]より前に[は存在しません．プログラムの実行を停止します．" ;
+          cerr << "[error] " << program_step + 1 << " ステップ目の]より前に[は存在しません．プログラムの実行を停止します．" ;
           return 1;
         }
         //　ループ開始位置へジャンプ
