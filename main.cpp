@@ -27,9 +27,14 @@ int main(int argc, char *argv[]){
 
   // ソースコードの読み込み・実行用変数
   char current_char;
-  unsigned int program_counter = 0;
   unsigned int loop_depth = 0;
-  unsigned int loop_start_position[BFK_MAX_LOOP_DEPTH] = {0,};
+  fpos_t previous_pos;
+  fgetpos(bfk_source, &previous_pos); // init
+  fpos_t loop_start_pos[BFK_MAX_LOOP_DEPTH] = {0,};
+  fpos_t loop_end_pos[BFK_MAX_LOOP_DEPTH] = {-1,};
+  bool jumped = false;
+  unsigned long long program_step=1;
+  unsigned int inside_loop = 0;
 
   // ソースコード処理開始
   while((current_char = fgetc(bfk_source)) != EOF){
@@ -39,7 +44,7 @@ int main(int argc, char *argv[]){
           bfk_pointer++;
         }
         else{
-          cerr << "[error] " << program_counter + 1 << " 文字目の>で配列の最大範囲を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << previous_pos + 1 << " 文字目の>で配列の最大範囲を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
       break;
@@ -49,7 +54,7 @@ int main(int argc, char *argv[]){
           bfk_pointer--;
         }
         else{
-          cerr << "[error] " << program_counter + 1 << " 文字目の<で配列の最小範囲を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << previous_pos + 1 << " 文字目の<で配列の最小範囲を超えました．プログラムの実行を停止します．" << program_step ;
           return 1;
         }
       break;
@@ -74,48 +79,66 @@ int main(int argc, char *argv[]){
       case '[':
         // ループの深さ限界をチェック
         if(loop_depth == BFK_MAX_LOOP_DEPTH){
-          cerr << "[error] " << program_counter + 1 << " 文字目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
+          cerr << "[error] " << previous_pos + 1 << " 文字目の[でループのネストの深さの最大を超えました．プログラムの実行を停止します．" ;
           return 1;
         }
-        // 現在の場所を記録・ループの深さを更新
-        loop_start_position[loop_depth] = program_counter;
-        loop_depth++;
 
-        // 次の]まで進む
-        if(*bfk_pointer == 0){
-          while((current_char = fgetc(bfk_source)) != ']'){
-            if(current_char == EOF){
-              cerr << "[error] " << program_counter + 1 << " 文字目の[から，次の]に進むのに失敗しました．プログラムの実行を停止します．" ;
-              return 1;
-            }
-            program_counter++;
-          }
-          // ]を読み込んだ分，ここでprogram_counterをインクリメントする必要がある
-          // switch後のprogram_counter++は[を読み込んだ分の処理
-          program_counter++;
-          loop_depth--;
+        // ループ開始位置の記録
+        if(!jumped){
+          loop_start_pos[loop_depth] = previous_pos;
         }
+        jumped = false;
+
+        // ポインタが0なら対応する]まで進む
+        if(*bfk_pointer == 0){
+          inside_loop = 0;
+          while(1){
+            current_char = fgetc(bfk_source);
+            switch(current_char){
+              case EOF:
+                cerr << "[error] " << previous_pos + 1 << " 文字目の[に対応する]が存在しません．プログラムの実行を停止します．" ;
+              return 1;
+
+              case ']':
+                if(inside_loop == 0){
+                  goto FINISH_PROCESSING_LOOP;
+                }
+                inside_loop--;
+              break;
+
+              case '[':
+                inside_loop++;
+              break;
+            }
+          }
+          FINISH_PROCESSING_LOOP:
+          break;
+        }
+
+        // ループの深さを更新
+        loop_depth++;
       break;
 
       case ']':
         // 前の[まで戻り，ループの深さを更新
         if(loop_depth == 0){
-          cerr << "[error] " << program_counter + 1 << " 文字目の]より前に[は存在しません．プログラムの実行を停止します．" ;
+          cerr << "[error] " << previous_pos + 1 << " 文字目の]より前に[は存在しません．プログラムの実行を停止します．" ;
           return 1;
         }
-        program_counter = loop_start_position[loop_depth-1];
-        if(fseek(bfk_source, program_counter, SEEK_SET)){
-          cerr << "[error] " << program_counter + 1 << " 文字目の]から，1つ前の[に戻るのに失敗しました．プログラムの実行を停止します．" ;
-          return 1;
-        }
+        //　ループ開始位置へジャンプ
+        fsetpos(bfk_source, &loop_start_pos[loop_depth-1]);
+        jumped = true;
         loop_depth--;
-      continue;
+      break;
 
       default:
         // 他の文字はコメントとして読み飛ばす
+        program_step--;
       break;
     }
-    program_counter++;
+    // 現在の位置を記憶
+    fgetpos(bfk_source, &previous_pos);
+    program_step++;
   }
 
   // 終了処理・正常終了通知
